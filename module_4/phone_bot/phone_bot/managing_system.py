@@ -1,4 +1,5 @@
 from collections import UserDict
+from datetime import datetime
 
 
 class Field:
@@ -23,10 +24,21 @@ class Phone(Field):
             super().__init__(value)
 
 
+class Birthday(Field):
+    def __init__(self, value):
+        try:
+            value_datetime = datetime.strptime(value, "%d.%m.%Y").date()
+            super().__init__(value_datetime)
+            # check data correct
+        except ValueError:
+            raise ValueError("Invalid date format. Use DD.MM.YYYY")
+
+
 class Record:
     def __init__(self, name):
         self.name = Name(name)
         self.phones = []
+        self.birthday = None
 
     def add_phone(self, value):
         self.phones.append(Phone(value))
@@ -44,8 +56,17 @@ class Record:
                 return value
 
     def __str__(self):
-        return f"Contact name: {self.name.value},"\
-               f"phones: {'; '.join(p.value for p in self.phones)}"
+        return f"Contact name: {self.name.value}, "\
+               f"phones: {'; '.join(p.value for p in self.phones)}, "\
+               f"birthday: {self.birthday}"
+
+    def __repr__(self):
+        return f"{self.name.value}, "\
+               f"{'; '.join(p.value for p in self.phones)}, "\
+               f"{self.birthday}"
+
+    def add_birthday(self, value):
+        self.birthday = Birthday(value)
 
 
 class AddressBook(UserDict):
@@ -60,37 +81,38 @@ class AddressBook(UserDict):
     def delete(self, name):
         del self.data[name]
 
+    def get_upcoming_birthdays(self):
 
-# Створення нової адресної книги
-book = AddressBook()
+        today = datetime.now()
+        today_date = today.date()
+        birthdays_this_week = []
+        users = []
 
-# Створення запису для John
-john_record = Record("John")
-john_record.add_phone("1234567890")
-john_record.add_phone("5555555555")
+        for user, record in self.data.items():
+            name = record.name.value
+            birthday = record.birthday.value
+            users.append({"name": name, "birthday": birthday})
 
-# Додавання запису John до адресної книги
-book.add_record(john_record)
-
-# Створення та додавання нового запису для Jane
-jane_record = Record("Jane")
-jane_record.add_phone("9876543210")
-book.add_record(jane_record)
-
-# Виведення всіх записів у книзі
-for name, record in book.data.items():
-    print(record)
-
-# Знаходження та редагування телефону для John
-john = book.find("John")
-print(john)
-john.edit_phone("1234567890", "1112223333")
-
-print(john)  # Виведення: Contact name: John, phones: 1112223333; 5555555555
-
-# Пошук конкретного телефону у записі John
-found_phone = john.find_phone("5555555555")
-print(f"{john.name}: {found_phone}")  # Виведення: 5555555555
-
-# Видалення запису Jane
-book.delete("Jane")
+        for user in users:
+            user.update({"birthday": datetime(today.year,
+                        user["birthday"].month,
+                        user["birthday"].day).date()})
+            if user["birthday"] < today_date:
+                user.update({"birthday": datetime(today.year+1,
+                            user["birthday"].month,
+                            user["birthday"].day).date()})
+            else:
+                days_left = (user["birthday"] - today_date).days
+                if 0 <= days_left <= 7 and user["birthday"].weekday() >= 5:
+                    # days_to_add = 7 - user["birthday"].weekday()
+                    user.update({"birthday":
+                                 datetime.strftime(user["birthday"], "%d.%m")})
+                    birthdays_this_week.append(user)
+                elif 0 <= days_left <= 7 and user["birthday"].weekday() < 5:
+                    user.update({"birthday":
+                                 datetime.strftime(user["birthday"], "%d.%m")})
+                    birthdays_this_week.append(user)
+        if len(birthdays_this_week) > 0:
+            return birthdays_this_week
+        else:
+            return "There is no upcoming birthdays this week"
