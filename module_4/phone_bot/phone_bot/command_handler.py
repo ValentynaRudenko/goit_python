@@ -23,8 +23,6 @@ def parse_input(user_input):
 @input_error
 def add_contact(args, book):
     name, phone = args
-    # contacts[name] = phone
-    # return "Contact added"
     if name not in book.keys():
         new_record = Record(name)
         new_record.add_phone(phone)
@@ -39,11 +37,6 @@ def add_contact(args, book):
 @input_error
 def change_contact(args, book):
     name, phone_old, phone_new = args
-    # if name in contacts.keys():
-    #     contacts[name] = phone
-    #     return "Contact changed"
-    # else:
-    #     return "This name isn't in the contacts. Add it first."
     if name in book.keys():
         existing_record = book[name]
         existing_record.edit_phone(phone_old, phone_new)
