@@ -5,17 +5,31 @@ from phone_bot import parse_input, add_contact, \
                     show_birthday, \
                     birthdays, \
                     AddressBook
+import pickle
+
+
+def save_data(book, filename="addressbook.pkl"):
+    with open(filename, "wb") as file:
+        pickle.dump(book, file)
+
+
+def load_data(filename="addressbook.pkl"):
+    try:
+        with open(filename, "rb") as file:
+            return pickle.load(file)
+    except FileNotFoundError:
+        return AddressBook()
 
 
 def main():
-    # contacts = {}
-    book = AddressBook()
+    book = load_data()
     print("Welcome to the assistant bot!")
     while True:
         user_input = input("Enter a command: ")
         if user_input.strip():
             command, *args = parse_input(user_input)
             if command in ["close", "exit"]:
+                save_data(book)
                 print("Good buy!")
                 break
             elif command == "hello":

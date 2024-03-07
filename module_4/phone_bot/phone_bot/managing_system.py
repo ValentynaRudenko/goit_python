@@ -29,7 +29,6 @@ class Birthday(Field):
         try:
             value_datetime = datetime.strptime(value, "%d.%m.%Y").date()
             super().__init__(value_datetime)
-            # check data correct
         except ValueError:
             raise ValueError("Invalid date format. Use DD.MM.YYYY")
 
@@ -104,7 +103,6 @@ class AddressBook(UserDict):
             else:
                 days_left = (user["birthday"] - today_date).days
                 if 0 <= days_left <= 7 and user["birthday"].weekday() >= 5:
-                    # days_to_add = 7 - user["birthday"].weekday()
                     user.update({"birthday":
                                  datetime.strftime(user["birthday"], "%d.%m")})
                     birthdays_this_week.append(user)
