@@ -1,0 +1,14 @@
+[tool.poetry]
+name = "phone-bot"
+version = "0.1.0"
+description = "This is a phone_bot project"
+authors = ["Valentyna Rudenko <valentino4ka2009@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
